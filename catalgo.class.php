@@ -452,11 +452,14 @@ class catalgo {
      * @return float a decimal rounded to 5 places is returned
      */
     public function estimate_standard_error($questattempt, $sumcorrect, $sumincorrect) {
-        $standarderror = 0;
-        $product = $sumcorrect * $sumincorrect;
-        $quotient = (float) $questattempt / (float) $product;
-        $standarderror = sqrt($quotient);
-
+        if ($sumincorrect == 0) {
+            $standarderror = sqrt($questattempt / ( ($sumcorrect - 0.5) * ($sumincorrect + 0.5) ) );
+        } elseif ($sumcorrect == 0) {
+            $standarderror = sqrt($questattempt / ( ($sumcorrect + 0.5) * ($sumincorrect - 0.5) ) );
+        } else {
+            $standarderror = sqrt($questattempt / ( $sumcorrect * $sumincorrect ) );
+        }
+        
         return round($standarderror, 5);
     }
 
@@ -469,11 +472,13 @@ class catalgo {
      * @return float an estimate of the measure of ability
      */
     public function estimate_measure($diffsum, $questattempt, $sumcorrect, $sumincorrect) {
-        $measure = 0.0;
-        $quotient = (float) $sumcorrect / (float) $sumincorrect;
-        $quotienttwo = $diffsum / $questattempt;
-        $measure = $quotienttwo + log($quotient); // calculate natural log
-
+        if ($sumincorrect == 0) {
+            $measure = ($diffsum / $questattempt) + log( ($sumcorrect - 0.5) / ($sumincorrect + 0.5) );
+        } elseif ($sumcorrect == 0) {
+            $measure = ($diffsum / $questattempt) + log( ($sumcorrect + 0.5) / ($sumincorrect - 0.5) );
+        } else {
+            $measure = ($diffsum / $questattempt) + log( $sumcorrect / $sumincorrect );
+        }
         return round($measure, 5, PHP_ROUND_HALF_UP);
     }
 
